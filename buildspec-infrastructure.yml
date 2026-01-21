@@ -3,9 +3,9 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Deploying Infrastructure Stack"
-      - echo "Project: $PROJECT_NAME"
-      - INFRASTRUCTURE_STACK_NAME="${PROJECT_NAME}-infrastructure"
+      - 'echo "Deploying Infrastructure Stack"'
+      - 'echo "Project: $PROJECT_NAME"'
+      - 'INFRASTRUCTURE_STACK_NAME="${PROJECT_NAME}-infrastructure"'
       
   build:
     commands:
