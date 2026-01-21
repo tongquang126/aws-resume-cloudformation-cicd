@@ -163,10 +163,10 @@ Resources:
                 TemplatePath: SourceOutput::infra/bootstrap-pipeline.yaml
                 ParameterOverrides: |
                   {
-                    "ProjectName": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "ProjectName" ] },
-                    "GitHubRepoOwner": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubRepoOwner" ] },
-                    "GitHubRepoName": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubRepoName" ] },
-                    "GitHubBranch": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubBranch" ] }
+                    "ProjectName": { "Fn::GetParam" : [ "SourceOutput", "infra/pipeline-parameters.json", "ProjectName" ] },
+                    "GitHubRepoOwner": { "Fn::GetParam" : [ "SourceOutput", "infra/pipeline-parameters.json", "GitHubRepoOwner" ] },
+                    "GitHubRepoName": { "Fn::GetParam" : [ "SourceOutput", "infra/pipeline-parameters.json", "GitHubRepoName" ] },
+                    "GitHubBranch": { "Fn::GetParam" : [ "SourceOutput", "infra/pipeline-parameters.json", "GitHubBranch" ] }
                   }
                 Capabilities: CAPABILITY_NAMED_IAM
                 RoleArn: !GetAtt CloudFormationServiceRole.Arn

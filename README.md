@@ -30,7 +30,8 @@ aws-resume-cloudformation-cicd/
 ├── infra/
 │   ├── bootstrap-pipeline.yaml    # Self-updating pipeline stack
 │   ├── infrastructure.yaml        # Website infrastructure stack  
-│   └── parameters.json            # Configuration parameters
+│   ├── parameters.json            # CloudFormation CLI parameters (ParameterKey/ParameterValue array)
+│   └── pipeline-parameters.json   # CodePipeline SelfUpdate parameters (JSON object for Fn::GetParam)
 ├── app/
 │   ├── index.html                 # Resume website HTML
 │   ├── style.css                  # CSS with responsive design
@@ -94,7 +95,7 @@ cd aws-resume-cloudformation-cicd
 
 ### Step 3: Configure parameters
 
-Edit `infra/parameters.json` file:
+Edit `infra/parameters.json` file (used by `bootstrap-deploy.sh` / CloudFormation CLI):
 
 ```json
 [
@@ -254,7 +255,7 @@ graph LR
 
 ### Infrastructure deployment fails
 1. Check logs: `/aws/codebuild/{project-name}-infrastructure-deploy`
-2. Verify parameter values in `infra/parameters.json`
+2. Verify parameter values in `infra/parameters.json` and `infra/pipeline-parameters.json`
 3. Check IAM permissions for infrastructure resources
 
 ### Website not loading
@@ -401,7 +402,7 @@ Nếu gặp vấn đề:
 # 1. Setup GitHub token trong SSM
 aws ssm put-parameter --name "/github/pat/pipeline" --value "your-token" --type "String"
 
-# 2. Update parameters.json với GitHub username
+# 2. Update infra/parameters.json and infra/pipeline-parameters.json
 # 3. Bootstrap pipeline (1 lần duy nhất)
 ./bootstrap-deploy.sh
 
