@@ -55,9 +55,22 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: 
-                - codepipeline.amazonaws.com
-                - cloudformation.amazonaws.com
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess  # Needed for self-mutation
+
+  # IAM Role for CloudFormation (Self-Update)
+  CloudFormationServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-cloudformation-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess  # Needed for self-mutation
@@ -156,7 +169,7 @@ Resources:
                     "GitHubBranch": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubBranch" ] }
                   }
                 Capabilities: CAPABILITY_NAMED_IAM
-                RoleArn: !GetAtt CodePipelineServiceRole.Arn
+                RoleArn: !GetAtt CloudFormationServiceRole.Arn
               InputArtifacts:
                 - Name: SourceOutput
               RunOrder: 1
