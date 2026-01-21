@@ -1,0 +1,124 @@
+{
+  "personalInfo": {
+    "name": "Tony Tong",
+    "title": "Cloud Solutions Architect",
+    "email": "tony.tong@example.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "San Francisco, CA",
+    "linkedin": "https://linkedin.com/in/tonytong",
+    "github": "https://github.com/tonytong",
+    "website": "https://tonytong.dev"
+  },
+  "summary": "Experienced Cloud Solutions Architect with 8+ years of expertise in designing and implementing scalable cloud infrastructure on AWS. Proven track record of leading digital transformation initiatives and building robust CI/CD pipelines. Passionate about DevOps, Infrastructure as Code, and creating automated solutions that drive business value.",
+  "skills": {
+    "Cloud Platforms": ["AWS", "Azure", "Google Cloud"],
+    "Infrastructure as Code": ["CloudFormation", "Terraform", "CDK", "Pulumi"],
+    "CI/CD & DevOps": ["CodePipeline", "CodeBuild", "Jenkins", "GitHub Actions", "Docker", "Kubernetes"],
+    "Programming Languages": ["Python", "JavaScript", "TypeScript", "Java", "Go", "Bash"],
+    "Databases": ["DynamoDB", "RDS", "MongoDB", "Redis", "PostgreSQL"],
+    "Monitoring & Logging": ["CloudWatch", "Prometheus", "Grafana", "ELK Stack", "DataDog"],
+    "Security": ["IAM", "KMS", "Secrets Manager", "GuardDuty", "Security Hub"]
+  },
+  "experience": [
+    {
+      "title": "Senior Cloud Solutions Architect",
+      "company": "TechCorp Solutions",
+      "location": "San Francisco, CA",
+      "startDate": "2020-01",
+      "endDate": "Present",
+      "achievements": [
+        "Led cloud migration projects for 15+ enterprise clients, reducing infrastructure costs by 40%",
+        "Designed and implemented highly available multi-region AWS architectures serving 10M+ users",
+        "Established DevOps practices and CI/CD pipelines, reducing deployment time by 80%",
+        "Mentored a team of 8 cloud engineers and conducted technical training sessions",
+        "Implemented Infrastructure as Code using CloudFormation and Terraform for 50+ projects"
+      ]
+    },
+    {
+      "title": "Cloud Engineer",
+      "company": "CloudFirst Inc.",
+      "location": "Seattle, WA",
+      "startDate": "2018-03",
+      "endDate": "2019-12",
+      "achievements": [
+        "Developed Infrastructure as Code templates using CloudFormation and Terraform",
+        "Automated deployment processes using AWS CodePipeline and Jenkins",
+        "Implemented monitoring and logging solutions with CloudWatch and ELK stack",
+        "Collaborated with development teams to optimize application performance and scalability",
+        "Reduced manual deployment tasks by 90% through automation"
+      ]
+    },
+    {
+      "title": "DevOps Engineer",
+      "company": "StartupTech",
+      "location": "Austin, TX",
+      "startDate": "2016-06",
+      "endDate": "2018-02",
+      "achievements": [
+        "Built and maintained CI/CD pipelines for microservices architecture",
+        "Containerized applications using Docker and orchestrated with Kubernetes",
+        "Implemented security best practices and compliance frameworks",
+        "Reduced deployment failures by 90% through automated testing and rollback mechanisms",
+        "Designed and implemented blue-green deployment strategies"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "institution": "University of Technology",
+      "location": "California",
+      "graduationYear": "2016",
+      "gpa": "3.8/4.0"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Solutions Architect Professional",
+      "issuer": "Amazon Web Services",
+      "issueDate": "2021-03",
+      "expiryDate": "2024-03",
+      "credentialId": "AWS-SAP-2021-001"
+    },
+    {
+      "name": "AWS DevOps Engineer Professional",
+      "issuer": "Amazon Web Services",
+      "issueDate": "2020-08",
+      "expiryDate": "2023-08",
+      "credentialId": "AWS-DOP-2020-001"
+    },
+    {
+      "name": "Certified Kubernetes Administrator",
+      "issuer": "Cloud Native Computing Foundation",
+      "issueDate": "2021-01",
+      "expiryDate": "2024-01",
+      "credentialId": "CKA-2021-001"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Multi-Region E-commerce Platform",
+      "description": "Designed and implemented a highly available e-commerce platform across multiple AWS regions, serving 5M+ users with 99.99% uptime. Used Auto Scaling, RDS Multi-AZ, and CloudFront CDN.",
+      "technologies": ["AWS", "CloudFormation", "Auto Scaling", "RDS", "CloudFront", "Lambda"],
+      "startDate": "2021-01",
+      "endDate": "2021-06",
+      "githubUrl": "https://github.com/tonytong/ecommerce-platform"
+    },
+    {
+      "name": "Serverless Data Processing Pipeline",
+      "description": "Built a real-time data processing pipeline using AWS Lambda, Kinesis, and DynamoDB to process 1TB+ of data daily with automatic scaling and cost optimization.",
+      "technologies": ["Lambda", "Kinesis", "DynamoDB", "Python", "CloudWatch"],
+      "startDate": "2020-08",
+      "endDate": "2020-12",
+      "githubUrl": "https://github.com/tonytong/serverless-data-pipeline"
+    },
+    {
+      "name": "Infrastructure Automation Framework",
+      "description": "Created a reusable Infrastructure as Code framework using Terraform and Python that reduced infrastructure provisioning time by 70% across multiple projects.",
+      "technologies": ["Terraform", "Python", "AWS", "GitHub Actions", "Ansible"],
+      "startDate": "2020-03",
+      "endDate": "2020-07",
+      "githubUrl": "https://github.com/tonytong/infra-automation"
+    }
+  ]
+}

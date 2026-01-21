@@ -1,0 +1,78 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Deploying Infrastructure Stack"
+      - echo "Project: $PROJECT_NAME"
+      - INFRASTRUCTURE_STACK_NAME="${PROJECT_NAME}-infrastructure"
+      
+  build:
+    commands:
+      - |
+        # Deploy or update infrastructure stack
+        echo "Deploying infrastructure stack: $INFRASTRUCTURE_STACK_NAME"
+        
+        # Check if stack exists
+        if aws cloudformation describe-stacks --stack-name $INFRASTRUCTURE_STACK_NAME --region $AWS_DEFAULT_REGION >/dev/null 2>&1; then
+          echo "Stack exists, updating..."
+          aws cloudformation update-stack \
+            --stack-name $INFRASTRUCTURE_STACK_NAME \
+            --template-body file://infra/infrastructure.yaml \
+            --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --region $AWS_DEFAULT_REGION || echo "No changes to infrastructure stack"
+          
+          aws cloudformation wait stack-update-complete \
+            --stack-name $INFRASTRUCTURE_STACK_NAME \
+            --region $AWS_DEFAULT_REGION || echo "Stack update complete or no update needed"
+        else
+          echo "Stack does not exist, creating..."
+          aws cloudformation create-stack \
+            --stack-name $INFRASTRUCTURE_STACK_NAME \
+            --template-body file://infra/infrastructure.yaml \
+            --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --region $AWS_DEFAULT_REGION
+          
+          aws cloudformation wait stack-create-complete \
+            --stack-name $INFRASTRUCTURE_STACK_NAME \
+            --region $AWS_DEFAULT_REGION
+        fi
+      
+      - |
+        # Get outputs
+        RESUME_BUCKET=$(aws cloudformation describe-stacks \
+          --stack-name $INFRASTRUCTURE_STACK_NAME \
+          --region $AWS_DEFAULT_REGION \
+          --query 'Stacks[0].Outputs[?OutputKey==`ResumeBucket`].OutputValue' \
+          --output text)
+        
+        WEBSITE_URL=$(aws cloudformation describe-stacks \
+          --stack-name $INFRASTRUCTURE_STACK_NAME \
+          --region $AWS_DEFAULT_REGION \
+          --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' \
+          --output text)
+        
+        echo "Resume Bucket: $RESUME_BUCKET"
+        echo "Website URL: $WEBSITE_URL"
+      
+      - |
+        # Deploy website files to S3
+        if [ -d "app" ]; then
+          echo "Deploying website files to S3..."
+          aws s3 sync ./app s3://$RESUME_BUCKET --delete
+          
+          # Set proper content types
+          aws s3 cp s3://$RESUME_BUCKET/index.html s3://$RESUME_BUCKET/index.html \
+            --metadata-directive REPLACE --content-type "text/html" --cache-control "no-cache"
+          aws s3 cp s3://$RESUME_BUCKET/style.css s3://$RESUME_BUCKET/style.css \
+            --metadata-directive REPLACE --content-type "text/css"
+          aws s3 cp s3://$RESUME_BUCKET/resume.json s3://$RESUME_BUCKET/resume.json \
+            --metadata-directive REPLACE --content-type "application/json" --cache-control "no-cache"
+        fi
+      
+  post_build:
+    commands:
+      - echo "Infrastructure deployment completed on $(date)"
+      - echo "Website is live at: $WEBSITE_URL"

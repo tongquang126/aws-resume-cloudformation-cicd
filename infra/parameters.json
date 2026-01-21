@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "ProjectName",
+    "ParameterValue": "resume-website"
+  },
+  {
+    "ParameterKey": "GitHubRepoOwner",
+    "ParameterValue": "tongquang126"
+  },
+  {
+    "ParameterKey": "GitHubRepoName",
+    "ParameterValue": "aws-resume-cloudformation-cicd"
+  },
+  {
+    "ParameterKey": "GitHubBranch",
+    "ParameterValue": "main"
+  }
+]

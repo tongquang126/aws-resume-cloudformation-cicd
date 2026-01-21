@@ -1,0 +1,192 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bootstrap Pipeline - Self-updating CI/CD Pipeline'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: resume-website
+    Description: Name of the project
+
+  GitHubRepoOwner:
+    Type: String
+    Description: GitHub repository owner/organization
+  
+  GitHubRepoName:
+    Type: String
+    Description: GitHub repository name
+  
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: GitHub branch to monitor
+  
+  GitHubToken:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /github/pat/pipeline
+    NoEcho: true
+    Description: GitHub personal access token
+
+Resources:
+  # S3 Bucket for Pipeline Artifacts
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-pipeline-artifacts-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldArtifacts
+            Status: Enabled
+            ExpirationInDays: 30
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  # IAM Role for CodePipeline
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-pipeline-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess  # Needed for self-mutation
+
+  # IAM Role for CodeBuild
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-codebuild-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess  # Needed to deploy infrastructure
+
+  # CloudWatch Logs for CodeBuild
+  CodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${ProjectName}-infrastructure-deploy'
+      RetentionInDays: 7
+
+  # CodeBuild Project for Infrastructure Deployment
+  InfrastructureDeployProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ProjectName}-infrastructure-deploy'
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - Name: PROJECT_NAME
+            Value: !Ref ProjectName
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref 'AWS::Region'
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref 'AWS::AccountId'
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec-infrastructure.yml
+      TimeoutInMinutes: 30
+
+  # CodePipeline
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub '${ProjectName}-pipeline'
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactsBucket
+      Stages:
+        # Stage 1: Source from GitHub
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: '1'
+              Configuration:
+                Owner: !Ref GitHubRepoOwner
+                Repo: !Ref GitHubRepoName
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: SourceOutput
+
+        # Stage 2: Self-Update Pipeline (CloudFormation Action)
+        - Name: SelfUpdate
+          Actions:
+            - Name: SelfUpdatePipeline
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Ref 'AWS::StackName'
+                TemplatePath: SourceOutput::infra/bootstrap-pipeline.yaml
+                ParameterOverrides: |
+                  {
+                    "ProjectName": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "ProjectName" ] },
+                    "GitHubRepoOwner": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubRepoOwner" ] },
+                    "GitHubRepoName": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubRepoName" ] },
+                    "GitHubBranch": { "Fn::GetParam" : [ "SourceOutput", "infra/parameters.json", "GitHubBranch" ] }
+                  }
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt CodePipelineServiceRole.Arn
+              InputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
+
+        # Stage 3: Deploy Infrastructure
+        - Name: DeployInfrastructure
+          Actions:
+            - Name: DeployInfrastructureStack
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref InfrastructureDeployProject
+              InputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
+
+Outputs:
+  PipelineName:
+    Description: Name of the CodePipeline
+    Value: !Ref Pipeline
+    Export:
+      Name: !Sub '${ProjectName}-PipelineName'
+  
+  PipelineURL:
+    Description: Pipeline Console URL
+    Value: !Sub 'https://console.aws.amazon.com/codesuite/codepipeline/pipelines/${Pipeline}/view?region=${AWS::Region}'
+  
+  ArtifactsBucket:
+    Description: S3 Bucket for pipeline artifacts
+    Value: !Ref ArtifactsBucket
+    Export:
+      Name: !Sub '${ProjectName}-ArtifactsBucket'

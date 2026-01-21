@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Resume - Loading...</title>
+    <meta name="description" content="Professional resume showcasing cloud architecture and DevOps expertise">
+    <meta name="keywords" content="cloud architect, aws, devops, resume">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tony Tong - Cloud Solutions Architect">
+    <meta property="og:description" content="Experienced Cloud Solutions Architect with 8+ years of AWS expertise">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="Tony Tong - Cloud Solutions Architect">
+    <meta property="twitter:description" content="Experienced Cloud Solutions Architect with 8+ years of AWS expertise">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👨‍💻</text></svg>">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading resume...</p>
+    </div>
+
+    <!-- Main Resume Container -->
+    <div class="container" id="resume-container" style="display: none;">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="profile-section">
+                <div class="profile-image">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h1 class="name" id="name">Loading...</h1>
+                    <h2 class="title" id="job-title">Loading...</h2>
+                    <div class="contact-info" id="contact-info">
+                        <!-- Contact info will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="window.print()" aria-label="Print Resume">
+                    <i class="fas fa-print"></i>
+                    <span>Print</span>
+                </button>
+                <button class="btn-primary" id="download-btn" aria-label="Download PDF">
+                    <i class="fas fa-download"></i>
+                    <span>Download</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="#summary" class="nav-link active">Summary</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#education" class="nav-link">Education</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Summary Section -->
+            <section class="section" id="summary">
+                <h3 class="section-title">
+                    <i class="fas fa-user"></i>
+                    Professional Summary
+                </h3>
+                <div class="section-content">
+                    <p id="summary-text">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section class="section" id="skills">
+                <h3 class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    Technical Skills
+                </h3>
+                <div class="section-content">
+                    <div class="skills-grid" id="skills-grid">
+                        <!-- Skills will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Experience Section -->
+            <section class="section" id="experience">
+                <h3 class="section-title">
+                    <i class="fas fa-briefcase"></i>
+                    Professional Experience
+                </h3>
+                <div class="section-content" id="experience-content">
+                    <!-- Experience will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Education & Certifications Section -->
+            <section class="section" id="education">
+                <h3 class="section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Education & Certifications
+                </h3>
+                <div class="section-content">
+                    <div class="subsection" id="education-content">
+                        <!-- Education will be populated by JavaScript -->
+                    </div>
+                    <div class="subsection" id="certifications-content">
+                        <!-- Certifications will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section class="section" id="projects">
+                <h3 class="section-title">
+                    <i class="fas fa-code"></i>
+                    Key Projects
+                </h3>
+                <div class="section-content" id="projects-content">
+                    <!-- Projects will be populated by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; <span id="current-year"></span> <span id="footer-name">Tony Tong</span>. All rights reserved.</p>
+                <div class="footer-links">
+                    <span class="footer-note">Built with AWS • CloudFormation • CI/CD Pipeline</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" id="progress-indicator">
+        <!-- Progress dots will be generated by JavaScript -->
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" id="error-message" style="display: none;">
+        <div class="error-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Failed to Load Resume</h3>
+            <p>There was an error loading the resume data. Please try refreshing the page.</p>
+            <button onclick="location.reload()">Retry</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let resumeData = null;
+
+        // Load and render resume data
+        async function loadResume() {
+            try {
+                const response = await fetch('resume.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                resumeData = await response.json();
+                renderResume(resumeData);
+                initializeFeatures();
+            } catch (error) {
+                console.error('Error loading resume:', error);
+                showError();
+            }
+        }
+
+        function renderResume(data) {
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('resume-container').style.display = 'block';
+
+            // Set page title and meta tags
+            const fullTitle = `${data.personalInfo.name} - ${data.personalInfo.title}`;
+            document.getElementById('page-title').textContent = fullTitle;
+            document.title = fullTitle;
+
+            // Render personal info
+            document.getElementById('name').textContent = data.personalInfo.name;
+            document.getElementById('job-title').textContent = data.personalInfo.title;
+            document.getElementById('footer-name').textContent = data.personalInfo.name;
+
+            // Render contact info
+            renderContactInfo(data.personalInfo);
+
+            // Render sections
+            renderSummary(data.summary);
+            renderSkills(data.skills);
+            renderExperience(data.experience);
+            renderEducation(data.education);
+            renderCertifications(data.certifications);
+            renderProjects(data.projects);
+
+            // Set current year
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        }
+
+        function renderContactInfo(personalInfo) {
+            const contactInfo = document.getElementById('contact-info');
+            contactInfo.innerHTML = `
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>${personalInfo.phone}</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>${personalInfo.location}</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-linkedin"></i>
+                    <a href="${personalInfo.linkedin}" target="_blank">LinkedIn</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <a href="${personalInfo.github}" target="_blank">GitHub</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-globe"></i>
+                    <a href="${personalInfo.website}" target="_blank">Portfolio</a>
+                </div>
+            `;
+        }
+
+        function renderSummary(summary) {
+            document.getElementById('summary-text').textContent = summary;
+        }
+
+        function renderSkills(skills) {
+            const skillsGrid = document.getElementById('skills-grid');
+            skillsGrid.innerHTML = Object.entries(skills).map(([category, skillsList]) => `
+                <div class="skill-category">
+                    <h4>${category}</h4>
+                    <div class="skills-list">
+                        ${skillsList.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderExperience(experience) {
+            const experienceContent = document.getElementById('experience-content');
+            experienceContent.innerHTML = experience.map(exp => `
+                <div class="experience-item">
+                    <div class="experience-header">
+                        <div class="job-info">
+                            <h4 class="job-title">${exp.title}</h4>
+                            <div class="company-info">
+                                <span class="company">${exp.company}</span>
+                                <span class="location">${exp.location}</span>
+                            </div>
+                        </div>
+                        <div class="duration">
+                            ${formatDate(exp.startDate)} - ${exp.endDate === 'Present' ? 'Present' : formatDate(exp.endDate)}
+                        </div>
+                    </div>
+                    <ul class="achievements">
+                        ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function renderEducation(education) {
+            const educationContent = document.getElementById('education-content');
+            educationContent.innerHTML = `
+                <h4>Education</h4>
+                ${education.map(edu => `
+                    <div class="education-item">
+                        <h5>${edu.degree}</h5>
+                        <div class="institution">${edu.institution}, ${edu.location}</div>
+                        <div class="year">Graduated: ${edu.graduationYear}</div>
+                        ${edu.gpa ? `<div class="gpa">GPA: ${edu.gpa}</div>` : ''}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderCertifications(certifications) {
+            const certificationsContent = document.getElementById('certifications-content');
+            certificationsContent.innerHTML = `
+                <h4>Certifications</h4>
+                <div class="cert-grid">
+                    ${certifications.map(cert => `
+                        <div class="cert-item">
+                            <div class="cert-icon">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                            <div class="cert-info">
+                                <h5>${cert.name}</h5>
+                                <div class="cert-issuer">${cert.issuer}</div>
+                                <div class="cert-date">
+                                    ${formatDate(cert.issueDate)} - ${formatDate(cert.expiryDate)}
+                                </div>
+                                <div class="cert-id">ID: ${cert.credentialId}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderProjects(projects) {
+            const projectsContent = document.getElementById('projects-content');
+            projectsContent.innerHTML = projects.map(project => `
+                <div class="project-item">
+                    <div class="project-header">
+                        <h4>${project.name}</h4>
+                        <div class="project-duration">
+                            ${formatDate(project.startDate)} - ${formatDate(project.endDate)}
+                        </div>
+                    </div>
+                    <p class="project-description">${project.description}</p>
+                    <div class="project-tags">
+                        ${project.technologies.map(tech => `<span class="tag">${tech}</span>`).join('')}
+                    </div>
+                    ${project.githubUrl ? `
+                        <div class="project-link">
+                            <a href="${project.githubUrl}" target="_blank">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Helper functions
+        function formatDate(dateStr) {
+            if (dateStr === 'Present') return 'Present';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        }
+
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').style.display = 'flex';
+        }
+
+        function initializeFeatures() {
+            initThemeToggle();
+            initSmoothScrolling();
+            initProgressIndicator();
+            initIntersectionObserver();
+            initDownloadButton();
+        }
+
+        function initThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#theme-toggle i');
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function initSmoothScrolling() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    // Add active class to clicked link
+                    link.classList.add('active');
+                    
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        function initProgressIndicator() {
+            const sections = document.querySelectorAll('.section');
+            const progressIndicator = document.getElementById('progress-indicator');
+            
+            // Create progress dots
+            sections.forEach((section, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                dot.title = section.querySelector('.section-title').textContent;
+                dot.addEventListener('click', () => {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                });
+                progressIndicator.appendChild(dot);
+            });
+
+            // Update progress on scroll
+            window.addEventListener('scroll', updateProgressIndicator);
+            updateProgressIndicator();
+        }
+
+        function updateProgressIndicator() {
+            const sections = document.querySelectorAll('.section');
+            const progressDots = document.querySelectorAll('.progress-dot');
+            const scrollPosition = window.scrollY + window.innerHeight / 3;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                const dot = progressDots[index];
+                
+                if (dot) {
+                    if (scrollPosition >= sectionTop && scrollPosition <= sectionBottom) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function initIntersectionObserver() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.section').forEach(section => {
+                observer.observe(section);
+            });
+        }
+
+        function initDownloadButton() {
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.addEventListener('click', () => {
+                window.print();
+            });
+        }
+
+        // Load resume when page loads
+        document.addEventListener('DOMContentLoaded', loadResume);
+    </script>
+</body>
+</html>
