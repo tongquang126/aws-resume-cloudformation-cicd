@@ -12,9 +12,35 @@ phases:
       - |
         # Deploy or update infrastructure stack
         echo "Deploying infrastructure stack: $INFRASTRUCTURE_STACK_NAME"
-        
+
         # Check if stack exists
         if aws cloudformation describe-stacks --stack-name $INFRASTRUCTURE_STACK_NAME --region $AWS_DEFAULT_REGION >/dev/null 2>&1; then
+          STACK_STATUS=$(aws cloudformation describe-stacks \
+            --stack-name $INFRASTRUCTURE_STACK_NAME \
+            --region $AWS_DEFAULT_REGION \
+            --query 'Stacks[0].StackStatus' \
+            --output text)
+          echo "Existing stack status: $STACK_STATUS"
+
+          if [ "$STACK_STATUS" = "ROLLBACK_COMPLETE" ]; then
+            echo "Stack is in ROLLBACK_COMPLETE; deleting before recreate..."
+            aws cloudformation delete-stack \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --region $AWS_DEFAULT_REGION
+            aws cloudformation wait stack-delete-complete \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --region $AWS_DEFAULT_REGION
+            echo "Deleted. Creating fresh stack..."
+            aws cloudformation create-stack \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --template-body file://infra/infrastructure.yaml \
+              --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --region $AWS_DEFAULT_REGION
+            aws cloudformation wait stack-create-complete \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --region $AWS_DEFAULT_REGION
+          else
           echo "Stack exists, updating..."
           aws cloudformation update-stack \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
@@ -26,6 +52,7 @@ phases:
           aws cloudformation wait stack-update-complete \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
             --region $AWS_DEFAULT_REGION || echo "Stack update complete or no update needed"
+          fi
         else
           echo "Stack does not exist, creating..."
           aws cloudformation create-stack \
@@ -34,10 +61,17 @@ phases:
             --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
             --capabilities CAPABILITY_NAMED_IAM \
             --region $AWS_DEFAULT_REGION
-          
-          aws cloudformation wait stack-create-complete \
+
+          if ! aws cloudformation wait stack-create-complete \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
-            --region $AWS_DEFAULT_REGION
+            --region $AWS_DEFAULT_REGION; then
+            echo "Create failed. Recent stack events:"
+            aws cloudformation describe-stack-events \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --region $AWS_DEFAULT_REGION \
+              --max-items 25 || true
+            exit 1
+          fi
         fi
       
       - |

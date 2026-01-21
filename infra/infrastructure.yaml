@@ -38,81 +38,6 @@ Resources:
             Action: 's3:GetObject'
             Resource: !Sub '${ResumeBucket.Arn}/*'
 
-  # IAM Role for Website Deployment CodeBuild
-  WebsiteDeployRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub '${ProjectName}-website-deploy-role'
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: WebsiteDeployPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-website-deploy*'
-              
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:DeleteObject
-                Resource:
-                  Fn::Sub:
-                    - '${ArtifactsBucket}/*'
-                    - ArtifactsBucket:
-                        Fn::ImportValue: !Sub '${ProjectName}-ArtifactsBucket'
-              
-              - Effect: Allow
-                Action:
-                  - s3:*
-                Resource:
-                  - !Sub '${ResumeBucket.Arn}/*'
-                  - !GetAtt ResumeBucket.Arn
-
-  # CloudWatch Logs for Website Deploy
-  WebsiteDeployLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/aws/codebuild/${ProjectName}-website-deploy'
-      RetentionInDays: 7
-
-  # CodeBuild Project for Website Deployment  
-  WebsiteDeployProject:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: !Sub '${ProjectName}-website-deploy'
-      ServiceRole: !GetAtt WebsiteDeployRole.Arn
-      Artifacts:
-        Type: NO_ARTIFACTS
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:7.0
-        EnvironmentVariables:
-          - Name: RESUME_BUCKET
-            Value: !Ref ResumeBucket
-      Source:
-        Type: NO_SOURCE
-        BuildSpec: |
-          version: 0.2
-          phases:
-            build:
-              commands:
-                - echo "Website deployment triggered by infrastructure stack"
-                - echo "Website bucket: $RESUME_BUCKET"
-      TimeoutInMinutes: 10
-
 Outputs:
   WebsiteURL:
     Description: URL of the resume website
@@ -125,9 +50,3 @@ Outputs:
     Value: !Ref ResumeBucket
     Export:
       Name: !Sub '${ProjectName}-ResumeBucket'
-  
-  WebsiteDeployProjectName:
-    Description: CodeBuild project for website deployment
-    Value: !Ref WebsiteDeployProject
-    Export:
-      Name: !Sub '${ProjectName}-WebsiteDeployProject'
