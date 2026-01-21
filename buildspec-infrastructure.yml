@@ -42,16 +42,21 @@ phases:
               --region $AWS_DEFAULT_REGION
           else
           echo "Stack exists, updating..."
-          aws cloudformation update-stack \
+          UPDATE_OUTPUT=$(aws cloudformation update-stack \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
             --template-body file://infra/infrastructure.yaml \
             --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
             --capabilities CAPABILITY_NAMED_IAM \
-            --region $AWS_DEFAULT_REGION || echo "No changes to infrastructure stack"
-          
-          aws cloudformation wait stack-update-complete \
-            --stack-name $INFRASTRUCTURE_STACK_NAME \
-            --region $AWS_DEFAULT_REGION || echo "Stack update complete or no update needed"
+            --region $AWS_DEFAULT_REGION 2>&1) || true
+
+          if echo "$UPDATE_OUTPUT" | grep -q "No updates are to be performed"; then
+            echo "No changes to infrastructure stack; skipping wait."
+          else
+            echo "$UPDATE_OUTPUT"
+            aws cloudformation wait stack-update-complete \
+              --stack-name $INFRASTRUCTURE_STACK_NAME \
+              --region $AWS_DEFAULT_REGION
+          fi
           fi
         else
           echo "Stack does not exist, creating..."
