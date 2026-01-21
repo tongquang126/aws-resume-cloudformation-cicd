@@ -74,5 +74,5 @@ phases:
       
   post_build:
     commands:
-      - echo "Infrastructure deployment completed on $(date)"
-      - echo "Website is live at: $WEBSITE_URL"
+      - 'echo "Infrastructure deployment completed on $(date)"'
+      - 'echo "Website is live at: $WEBSITE_URL"'
