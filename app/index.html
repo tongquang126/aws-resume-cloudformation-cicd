@@ -219,32 +219,63 @@
 
         function renderContactInfo(personalInfo) {
             const contactInfo = document.getElementById('contact-info');
-            contactInfo.innerHTML = `
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-phone"></i>
-                    <span>${personalInfo.phone}</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${personalInfo.location}</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-linkedin"></i>
-                    <a href="${personalInfo.linkedin}" target="_blank">LinkedIn</a>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-github"></i>
-                    <a href="${personalInfo.github}" target="_blank">GitHub</a>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-globe"></i>
-                    <a href="${personalInfo.website}" target="_blank">Portfolio</a>
-                </div>
-            `;
+            const items = [];
+
+            if (personalInfo.email) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
+                    </div>
+                `);
+            }
+
+            if (personalInfo.phone) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>${personalInfo.phone}</span>
+                    </div>
+                `);
+            }
+
+            if (personalInfo.location) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${personalInfo.location}</span>
+                    </div>
+                `);
+            }
+
+            if (personalInfo.linkedin) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fab fa-linkedin"></i>
+                        <a href="${personalInfo.linkedin}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                    </div>
+                `);
+            }
+
+            if (personalInfo.github) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fab fa-github"></i>
+                        <a href="${personalInfo.github}" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    </div>
+                `);
+            }
+
+            if (personalInfo.website) {
+                items.push(`
+                    <div class="contact-item">
+                        <i class="fas fa-globe"></i>
+                        <a href="${personalInfo.website}" target="_blank" rel="noopener noreferrer">Website</a>
+                    </div>
+                `);
+            }
+
+            contactInfo.innerHTML = items.join('');
         }
 
         function renderSummary(summary) {
@@ -314,10 +345,12 @@
                             <div class="cert-info">
                                 <h5>${cert.name}</h5>
                                 <div class="cert-issuer">${cert.issuer}</div>
-                                <div class="cert-date">
-                                    ${formatDate(cert.issueDate)} - ${formatDate(cert.expiryDate)}
-                                </div>
-                                <div class="cert-id">ID: ${cert.credentialId}</div>
+                                ${(cert.issueDate || cert.expiryDate) ? `
+                                    <div class="cert-date">
+                                        ${cert.issueDate ? formatDate(cert.issueDate) : ''}${(cert.issueDate && cert.expiryDate) ? ' - ' : ''}${cert.expiryDate ? formatDate(cert.expiryDate) : ''}
+                                    </div>
+                                ` : ''}
+                                ${cert.credentialId ? `<div class="cert-id">ID: ${cert.credentialId}</div>` : ''}
                             </div>
                         </div>
                     `).join('')}

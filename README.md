@@ -367,12 +367,12 @@ git push → Automatic rollback deploy
 
 ### Version 2.0.0 - Self-Mutating Pipeline
 - ✅ **BREAKING**: Redesigned architecture with self-updating pipeline
-- ✅ GitOps workflow - tất cả changes qua Git
-- ✅ CloudFormation Action cho self-update (thay vì CodeBuild)
-- ✅ SSM Parameter Store cho GitHub token security
+- ✅ GitOps workflow - all changes through Git
+- ✅ CloudFormation Action for self-update (instead of CodeBuild)
+- ✅ SSM Parameter Store for GitHub token security
 - ✅ Bootstrap deployment script
 - ✅ Simplified 2-stack architecture
-- ✅ AdminAccess permissions cho pipeline self-mutation
+- ✅ AdminAccess permissions for pipeline self-mutation
 - ✅ Removed nested stacks complexity
 
 ### Version 1.0.0 - Initial Release  
@@ -384,29 +384,29 @@ git push → Automatic rollback deploy
 
 ## 📄 License
 
-MIT License - xem [LICENSE](LICENSE) file để biết chi tiết.
+MIT License - see [LICENSE](LICENSE) for details.
 
-## 📞 Hỗ trợ
+## 📞 Support
 
-Nếu gặp vấn đề:
-1. 📖 Đọc phần Troubleshooting ở trên
-2. 🔍 Check CloudWatch Logs cho detailed error messages
-3. 🐛 Tạo GitHub issue với error logs và steps to reproduce
-4. 💬 Discussion tab cho questions về architecture
+If you run into issues:
+1. 📖 Read the Troubleshooting section above
+2. 🔍 Check CloudWatch Logs for detailed error messages
+3. 🐛 Open a GitHub issue with error logs and steps to reproduce
+4. 💬 Use the Discussions tab for architecture questions
 
 ---
 
 ## 🎯 Quick Start Summary
 
 ```bash
-# 1. Setup GitHub token trong SSM
+# 1. Store GitHub token in SSM
 aws ssm put-parameter --name "/github/pat/pipeline" --value "your-token" --type "String"
 
 # 2. Update infra/parameters.json and infra/pipeline-parameters.json
-# 3. Bootstrap pipeline (1 lần duy nhất)
+# 3. Bootstrap pipeline (one-time)
 ./bootstrap-deploy.sh
 
-# 4. Mọi thay đổi sau đó qua Git
+# 4. All later changes go through Git
 git add .
 git commit -m "Update something"
 git push  # → Automatic deployment!
@@ -415,7 +415,7 @@ git push  # → Automatic deployment!
 **🚀 GitOps Pipeline:** Bootstrap once → Git push → Auto deploy → Self-updating → Profit! 
 
 **⚠️ Security Notes**: 
-- **NEVER** commit GitHub tokens vào Git
-- Use SSM Parameter Store cho secrets
-- Pipeline cần AdminAccess cho self-updating capability
-- Regular rotation của GitHub tokens được khuyến nghị
+- **NEVER** commit GitHub tokens to Git
+- Use SSM Parameter Store for secrets
+- The pipeline needs AdminAccess for self-updating capability
+- Regular rotation of GitHub tokens is recommended
