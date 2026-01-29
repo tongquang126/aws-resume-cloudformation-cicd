@@ -6,6 +6,25 @@ phases:
       - 'echo "Deploying Infrastructure Stack"'
       - 'echo "Project: $PROJECT_NAME"'
       - 'INFRASTRUCTURE_STACK_NAME="${PROJECT_NAME}-infrastructure"'
+      - |
+        DOMAIN_NAME=$(python3 -c 'import json; print(json.load(open("infra/pipeline-parameters.json")).get("DomainName",""))')
+        ACM_CERTIFICATE_ARN=$(python3 -c 'import json; print(json.load(open("infra/pipeline-parameters.json")).get("AcmCertificateArn",""))')
+        HOSTED_ZONE_ID=$(python3 -c 'import json; print(json.load(open("infra/pipeline-parameters.json")).get("HostedZoneId",""))')
+
+        if [ -z "$DOMAIN_NAME" ]; then
+          echo "Missing DomainName in infra/pipeline-parameters.json"
+          exit 1
+        fi
+        if [ -z "$ACM_CERTIFICATE_ARN" ] || echo "$ACM_CERTIFICATE_ARN" | grep -q '^REPLACE_WITH_'; then
+          echo "Missing AcmCertificateArn in infra/pipeline-parameters.json (replace placeholder)"
+          exit 1
+        fi
+        if [ -z "$HOSTED_ZONE_ID" ] || echo "$HOSTED_ZONE_ID" | grep -q '^REPLACE_WITH_'; then
+          echo "Missing HostedZoneId in infra/pipeline-parameters.json (replace placeholder)"
+          exit 1
+        fi
+
+        echo "Domain: $DOMAIN_NAME"
       
   build:
     commands:
@@ -34,7 +53,11 @@ phases:
             aws cloudformation create-stack \
               --stack-name $INFRASTRUCTURE_STACK_NAME \
               --template-body file://infra/infrastructure.yaml \
-              --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+              --parameters \
+                ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+                ParameterKey=DomainName,ParameterValue=$DOMAIN_NAME \
+                ParameterKey=AcmCertificateArn,ParameterValue=$ACM_CERTIFICATE_ARN \
+                ParameterKey=HostedZoneId,ParameterValue=$HOSTED_ZONE_ID \
               --capabilities CAPABILITY_NAMED_IAM \
               --region $AWS_DEFAULT_REGION
             aws cloudformation wait stack-create-complete \
@@ -45,7 +68,11 @@ phases:
           UPDATE_OUTPUT=$(aws cloudformation update-stack \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
             --template-body file://infra/infrastructure.yaml \
-            --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+            --parameters \
+              ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+              ParameterKey=DomainName,ParameterValue=$DOMAIN_NAME \
+              ParameterKey=AcmCertificateArn,ParameterValue=$ACM_CERTIFICATE_ARN \
+              ParameterKey=HostedZoneId,ParameterValue=$HOSTED_ZONE_ID \
             --capabilities CAPABILITY_NAMED_IAM \
             --region $AWS_DEFAULT_REGION 2>&1) || true
 
@@ -63,7 +90,11 @@ phases:
           aws cloudformation create-stack \
             --stack-name $INFRASTRUCTURE_STACK_NAME \
             --template-body file://infra/infrastructure.yaml \
-            --parameters ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+            --parameters \
+              ParameterKey=ProjectName,ParameterValue=$PROJECT_NAME \
+              ParameterKey=DomainName,ParameterValue=$DOMAIN_NAME \
+              ParameterKey=AcmCertificateArn,ParameterValue=$ACM_CERTIFICATE_ARN \
+              ParameterKey=HostedZoneId,ParameterValue=$HOSTED_ZONE_ID \
             --capabilities CAPABILITY_NAMED_IAM \
             --region $AWS_DEFAULT_REGION
 

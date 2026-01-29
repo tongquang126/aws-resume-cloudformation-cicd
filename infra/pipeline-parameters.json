@@ -2,5 +2,9 @@
   "ProjectName": "resume-website",
   "GitHubRepoOwner": "tongquang126",
   "GitHubRepoName": "aws-resume-cloudformation-cicd",
-  "GitHubBranch": "main"
+  "GitHubBranch": "develop",
+  "DomainName": "resume.tonycloud.dev",
+  "AcmCertificateArn": "arn:aws:acm:us-east-1:157259343931:certificate/36f727b7-33a7-415d-8e5f-5c4b0a4105a3",
+  "HostedZoneId": "Z1000933DB5C2CBLR9JU",
+  "_comment": "replace_parameters_to_match_your_environment"
 }
