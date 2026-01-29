@@ -82,6 +82,26 @@ Resources:
             DomainName: !GetAtt ResumeBucket.RegionalDomainName
             OriginAccessControlId: !Ref CloudFrontOAC
             S3OriginConfig: {}
+        CacheBehaviors:
+          - PathPattern: index.html
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            MinTTL: 0
+            DefaultTTL: 60
+            MaxTTL: 60
+            Compress: true
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
@@ -98,8 +118,8 @@ Resources:
             Cookies:
               Forward: none
           MinTTL: 0
-          DefaultTTL: 0
-          MaxTTL: 0
+          DefaultTTL: 3600
+          MaxTTL: 3600
           Compress: true
         CustomErrorResponses:
           - ErrorCode: 403

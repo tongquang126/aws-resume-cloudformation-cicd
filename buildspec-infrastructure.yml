@@ -123,9 +123,16 @@ phases:
           --region $AWS_DEFAULT_REGION \
           --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' \
           --output text)
+
+        CLOUDFRONT_DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+          --stack-name $INFRASTRUCTURE_STACK_NAME \
+          --region $AWS_DEFAULT_REGION \
+          --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
+          --output text)
         
         echo "Resume Bucket: $RESUME_BUCKET"
         echo "Website URL: $WEBSITE_URL"
+        echo "CloudFront Distribution ID: $CLOUDFRONT_DISTRIBUTION_ID"
       
       - |
         # Deploy website files to S3
@@ -135,11 +142,21 @@ phases:
           
           # Set proper content types
           aws s3 cp s3://$RESUME_BUCKET/index.html s3://$RESUME_BUCKET/index.html \
-            --metadata-directive REPLACE --content-type "text/html" --cache-control "no-cache"
+            --metadata-directive REPLACE --content-type "text/html" --cache-control "public, max-age=60"
           aws s3 cp s3://$RESUME_BUCKET/style.css s3://$RESUME_BUCKET/style.css \
-            --metadata-directive REPLACE --content-type "text/css"
+            --metadata-directive REPLACE --content-type "text/css" --cache-control "public, max-age=3600"
           aws s3 cp s3://$RESUME_BUCKET/resume.json s3://$RESUME_BUCKET/resume.json \
-            --metadata-directive REPLACE --content-type "application/json" --cache-control "no-cache"
+            --metadata-directive REPLACE --content-type "application/json" --cache-control "public, max-age=3600"
+
+          # CloudFront invalidation so users see updates immediately
+          if [ -n "$CLOUDFRONT_DISTRIBUTION_ID" ] && [ "$CLOUDFRONT_DISTRIBUTION_ID" != "None" ]; then
+            echo "Creating CloudFront invalidation..."
+            aws cloudfront create-invalidation \
+              --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+              --paths "/*"
+          else
+            echo "Skipping invalidation: CloudFrontDistributionId not found in stack outputs."
+          fi
         fi
       
   post_build:
