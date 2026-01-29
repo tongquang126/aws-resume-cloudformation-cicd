@@ -20,10 +20,8 @@
     "Automation & Config": ["Ansible"],
     "Core": [
       "Linux Administration",
-      "Provisioning & Configuration Management",
       "Container Orchestration",
       "Network Administration",
-      "Reliability Engineering",
       "Incident Response & RCA"
     ],
     "Languages": ["English (Fluent)", "Chinese (Fluent)", "Vietnamese (Native)"]
@@ -44,7 +42,7 @@
       ]
     },
     {
-      "title": "System Engineer",
+      "title": "Senior System Engineer",
       "company": "Zyxel Networks Corp.",
       "location": "Hsinchu, Taiwan",
       "startDate": "2020-10",
@@ -57,7 +55,7 @@
       ]
     },
     {
-      "title": "Network Engineer",
+      "title": "Senior Network Engineer",
       "company": "Zyxel Networks Corp.",
       "location": "Hsinchu, Taiwan",
       "startDate": "2016-03",
